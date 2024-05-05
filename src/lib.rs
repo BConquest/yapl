@@ -3,16 +3,30 @@
 //! `yapl` (Yet Another Prime Library) is a collection of commands to test and
 //! get prime numbers.
 
-/// Test to see if the number given is prime.
+/// Checks if a given number is prime.
+///
+/// A prime number is a natural number greater than 1 that has no positive divisors
+/// other than 1 and itself. This function returns `true` if the given number `n`
+/// is prime, and `false` otherwise.
+///
+/// # Arguments
+///
+/// * `n` - An unsigned 64-bit integer to be checked for primality.
+///
+/// # Returns
+///
+/// `true` if `n` is prime, `false` otherwise.
 ///
 /// # Examples
-/// ```
-/// let n = 7;
 ///
-/// if(yapl::is_prime(n))
-/// {
-///     println!("{}", n);
-/// }
+/// ```
+/// assert!(yapl::is_prime(2));
+/// assert!(yapl::is_prime(3));
+/// assert!(!yapl::is_prime(4));
+/// assert!(yapl::is_prime(5));
+/// assert!(yapl::is_prime(104729));
+/// assert!(!yapl::is_prime(104730));
+/// ```
 
 pub fn is_prime(n: u64) -> bool {
     if n <= 1 {
@@ -31,6 +45,69 @@ pub fn is_prime(n: u64) -> bool {
         i += 6;
     }
     return true;
+}
+
+/// An iterator that yields prime numbers in ascending order.
+///
+/// The `PrimeIterator` struct provides an iterator over prime numbers,
+/// starting from the smallest prime number, which is 2.
+///
+/// # Examples
+///
+/// ```
+/// let mut primes = yapl::PrimeIterator::new();
+/// assert_eq!(primes.next(), Some(2));
+/// assert_eq!(primes.next(), Some(3));
+/// assert_eq!(primes.next(), Some(5));
+/// assert_eq!(primes.next(), Some(7));
+/// ```
+#[derive(Debug)]
+pub struct PrimeIterator {
+    number: u64,
+}
+
+impl PrimeIterator {
+    /// Creates a new `PrimeIterator`.
+    ///
+    /// The iterator starts from the first prime number, which is 2.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let mut primes = yapl::PrimeIterator::new();
+    /// assert_eq!(primes.next(), Some(2));
+    /// ```
+    pub fn new() -> PrimeIterator {
+        PrimeIterator { number: 1 }
+    }
+}
+
+impl Iterator for PrimeIterator {
+    type Item = u64;
+
+    /// Returns the next prime number.
+    ///
+    /// This function returns `Some(u64)` with the next prime number, or `None` if
+    /// the iterator has been exhausted (which is unlikely, as prime numbers are infinite).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let mut primes = yapl::PrimeIterator::new();
+    /// assert_eq!(primes.next(), Some(2));
+    /// assert_eq!(primes.next(), Some(3));
+    /// ```
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            self.number += 1;
+            print!("\t{}", self.number);
+            if is_prime(self.number) {
+                print!("<-\n");
+                return Some(self.number);
+            }
+            println!();
+        }
+    }
 }
 
 #[cfg(test)]
@@ -145,5 +222,19 @@ mod tests {
         for n in non_prime_cases {
             assert_eq!(is_prime(n), false);
         }
+    }
+
+    #[test]
+    fn test_primer() {
+        let primer = PrimeIterator::new();
+        let primes: Vec<u64> = primer.take(5).collect();
+        assert_eq!(primes, vec![2, 3, 5, 7, 11]);
+    }
+
+    #[test]
+    fn test_primer_large_prime() {
+        let mut primer = PrimeIterator::new();
+        let prime = primer.nth(9999).unwrap();
+        assert_eq!(prime, 104729);
     }
 }
