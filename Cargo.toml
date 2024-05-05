@@ -1,0 +1,8 @@
+[package]
+name = "yapl"
+description = "A library for testing if numbers are prime, and getting the n prime"
+version = "0.2.0"
+authors = ["Bryant Conquest <bryant@paxavis.dev>"]
+license = "MIT"
+
+[dependencies]
